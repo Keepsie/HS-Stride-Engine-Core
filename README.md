@@ -45,6 +45,8 @@ var aiScript = enemy.Get<OldEnemyAI>();             // Standard Stride
 
 ## 🚀 Installation
 
+Video: https://youtu.be/ijOLUY7A5RE
+
 ### Prerequisites
 - Stride Engine 4.2.0.2381 or newer
 - Happenstance Logger (included in this package)
