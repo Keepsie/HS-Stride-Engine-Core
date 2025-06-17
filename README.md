@@ -45,17 +45,19 @@ var aiScript = enemy.Get<OldEnemyAI>();             // Standard Stride
 
 ## 🚀 Installation
 
-Video: https://youtu.be/ijOLUY7A5RE
+### Recommended: One-Click Installation
+1. **Download [HS Stride Packer](https://github.com/Keepsie/HS-Stride-Packer)**
+2. **Download** this library's `.stridepackage` file from [Releases](link-to-releases)
+3. **Import** using HS Stride Packer - everything installs automatically!
+
+### Alternative: Manual Installation
+- Code is open source - you can still copy files manually if preferred
+- See legacy installation instructions Video: https://youtu.be/ijOLUY7A5RE
+- HS Stride Packer handles all dependencies and setup automatically
 
 ### Prerequisites
 - Stride Engine 4.2.0.2381 or newer
-- Happenstance Logger (included in this package)
-
-### Quick Setup
-1. **Copy Scripts:** Copy the `Code -> (Happenstance->Core)` folder into your project's code directory
-2. **Setup Logger:** Copy the HSLogger prefab into your scene, OR attach HSLogger component to a empty entity in the scene.
-3. **Replace Base Classes:** Change your scripts to inherit from HS base classes instead of Stride's
-4. **Enjoy Familiar Patterns:** Use Unity-style lifecycle methods immediately
+- HS Stride Packer (for easy installation)
 
 ```csharp
 // Before (Stride way)
