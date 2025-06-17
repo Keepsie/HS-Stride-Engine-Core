@@ -47,18 +47,17 @@ var aiScript = enemy.Get<OldEnemyAI>();             // Standard Stride
 
 ### Recommended: One-Click Installation
 1. **Download [HS Stride Packer](https://github.com/Keepsie/HS-Stride-Packer)**
-2. **Download** this library's `.stridepackage` file from [Releases](link-to-releases)
+2. **Download** this library's `.stridepackage` file from [Releases](https://github.com/Keepsie/HS-Stride-Engine-Core/releases)
 3. **Import** using HS Stride Packer - everything installs automatically!
 
 ### Alternative: Manual Installation
 - Code is open source - you can still copy files manually if preferred
-- See legacy installation instructions Video: https://youtu.be/ijOLUY7A5RE
+- See legacy installation instructions 
 - HS Stride Packer handles all dependencies and setup automatically
 
 ### Prerequisites
 - Stride Engine 4.2.0.2381 or newer
 - HS Stride Packer (for easy installation)
-
 ```csharp
 // Before (Stride way)
 public class MyScript : SyncScript
