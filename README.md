@@ -1,4 +1,4 @@
-# Happenstance Stride Engine Core
+# HS Stride Engine Core
 
 A foundational library for Stride Engine that provides Unity-style script lifecycle, improved entity management, and essential utilities for game development.
 
