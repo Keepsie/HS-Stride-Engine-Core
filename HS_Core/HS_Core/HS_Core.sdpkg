@@ -1,0 +1,21 @@
+!Package
+SerializedVersion: {Assets: 3.1.0.0}
+Meta:
+    Name: HS_Core
+    Version: 1.0.0
+    Authors: []
+    Owners: []
+    Dependencies: null
+AssetFolders:
+    -   Path: !dir Assets
+    -   Path: !dir Effects
+    -   Path: !dir Assets
+    -   Path: !dir Assets
+    -   Path: !dir E:/Github/HS-Stride-Engine-Core/HS_Core/HS_Core/Assets
+ResourceFolders:
+    - !dir Resources
+OutputGroupDirectories: {}
+ExplicitFolders: []
+Bundles: []
+TemplateFolders: []
+RootAssets: []

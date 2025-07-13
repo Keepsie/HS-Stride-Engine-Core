@@ -1,0 +1,137 @@
+!SceneAsset
+Id: 6735b472-1a52-4235-944f-17c6419254fe
+SerializedVersion: {Stride: 3.1.0.1}
+Tags: []
+ChildrenIds: []
+Offset: {X: 0.0, Y: 0.0, Z: 0.0}
+Hierarchy:
+    RootParts:
+        - ref!! fdadcf09-a84b-4fe2-8e9f-7a55aea52abd
+        - ref!! 5afe188b-5bce-43dd-a75c-4d731d1e82ca
+        - ref!! 4739911a-e62c-4fe8-8f4e-a9eb8b399e94
+        - ref!! 18def509-0381-4247-bf3c-3ca122fd54fb
+        - ref!! bc708b99-0a8d-4a5b-9502-5f8f8746b384
+        - ref!! 0359e52e-0765-4498-999e-512ce1ffada2
+        - ref!! 61cbc9c4-1569-4aa4-90ef-082d649f95b2
+    Parts:
+        -   Entity:
+                Id: 0359e52e-0765-4498-999e-512ce1ffada2
+                Name: Sphere
+                Components:
+                    3312dc0b7bdad7871a142ed4bc7410aa: !TransformComponent
+                        Id: 1f033b35-c4f5-45ef-8558-aa3d7b146d2c
+                        Position: {X: 0.0, Y: 0.5, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    7a1046cfe34feef0ebf297c5ba6e3e15: !ModelComponent
+                        Id: 76bde077-0449-4fa1-be8d-76e43827a93a
+                        Model: abfc0424-b332-4d7a-a395-dd42fcfb498b:Sphere
+                        Materials: {}
+        -   Entity:
+                Id: 18def509-0381-4247-bf3c-3ca122fd54fb
+                Name: Skybox
+                Components:
+                    bfb8bd2694f704b0e12d8be6e441bd51: !TransformComponent
+                        Id: bc912497-f097-4995-b6f4-7509adda5abf
+                        Position: {X: 0.0, Y: 2.0, Z: -2.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    306aa3e37f593601049fa2cbfad886be: !BackgroundComponent
+                        Id: 07783665-307f-40af-acfc-2cae3d633e3f
+                        Texture: 6d4ed9be-8a83-4b44-aba8-18e55cda4946:Skybox texture
+                    026ea1cf9aac6cf9dd42ec10faaa8185: !LightComponent
+                        Id: 0a882824-0ae4-4a63-8bd7-5de8e092dfc5
+                        Type: !LightSkybox
+                            Skybox: 8f6942c9-dace-4b7d-a94c-e03b97d96352:Skybox
+        -   Entity:
+                Id: 4739911a-e62c-4fe8-8f4e-a9eb8b399e94
+                Name: Directional light
+                Components:
+                    d62e2f83afbe8ccdeca69dbc8be9834f: !TransformComponent
+                        Id: aa81053e-43ce-433f-8868-cd59a09f7dae
+                        Position: {X: 0.0, Y: 2.0, Z: 0.0}
+                        Rotation: {X: 1.131334E-08, Y: -0.9659258, Z: -0.25881904, W: -4.222196E-08}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    4783e8f703a3f34947e1e35deaec4635: !LightComponent
+                        Id: 986513e3-6e21-48d6-97ec-0c45c8cf71f7
+                        Type: !LightDirectional
+                            Color: !ColorRgbProvider
+                                Value: {R: 1.0, G: 1.0, B: 1.0}
+                            Shadow:
+                                Enabled: true
+                                Filter: !LightShadowMapFilterTypePcf
+                                    FilterSize: Filter5x5
+                                Size: Large
+                                DepthRange: {}
+                                PartitionMode: !LightDirectionalShadowMap.PartitionLogarithmic {}
+                                ComputeTransmittance: false
+                                BiasParameters: {}
+                        Intensity: 20.0
+        -   Entity:
+                Id: 5afe188b-5bce-43dd-a75c-4d731d1e82ca
+                Name: Camera
+                Components:
+                    6aad78e16b25f6fe034df81337b11b96: !TransformComponent
+                        Id: 57ac6086-3dd3-44a8-88e6-f845bbadfac7
+                        Position: {X: 2.6, Y: 0.6, Z: -1.0}
+                        Rotation: {X: 0.0, Y: 0.82903755, Z: 0.0, W: 0.5591929}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    e864391b72b1149fe095f68e95f85c2e: !CameraComponent
+                        Id: ed6b8757-a206-4b9b-b239-65399c890609
+                        Name: null
+                        Projection: Perspective
+                        Slot: 77a19259-aed4-4782-b789-7b9e93db7100
+                    b87aa2149688299170ea5d3d82913df5: !HS_Core.BasicCameraController,HS_Core
+                        Id: 84dd6998-a584-4c7a-b73a-8fa1221cd8c4
+                        Gamepad: false
+                        KeyboardMovementSpeed: {X: 5.0, Y: 5.0, Z: 5.0}
+                        TouchMovementSpeed: {X: 0.7, Y: 0.7, Z: 0.3}
+                        SpeedFactor: 5.0
+                        KeyboardRotationSpeed: {X: 3.0, Y: 3.0}
+                        MouseRotationSpeed: {X: 1.0, Y: 1.0}
+                        TouchRotationSpeed: {X: 1.0, Y: 0.7}
+        -   Entity:
+                Id: 61cbc9c4-1569-4aa4-90ef-082d649f95b2
+                Name: Log Test
+                Components:
+                    7cd6126a9b032e24c67449332c840e4f: !TransformComponent
+                        Id: c5185d5e-fa3e-4957-96c8-1513a23393da
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    4dd32b7793ca8c1f6a4f4bbc998e0455: !Happenstance.SE.Logger.Core.LoggerTest,HS_Core
+                        Id: 05f57b07-13bb-41a2-bd40-de064e8e16f9
+                        StartDisabled: false
+                        CollisionDetection: false
+        -   Entity:
+                Id: bc708b99-0a8d-4a5b-9502-5f8f8746b384
+                Name: Ground
+                Components:
+                    2f104ded57063bb17a04ef061ac6b9e2: !TransformComponent
+                        Id: 3974e407-91c1-498b-96e8-4c662afdb68a
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    4646aa8eb62d39cfbd8c0199b59de9cf: !ModelComponent
+                        Id: 9e1c00fc-c6a7-4d92-9625-e3fe6fd190b2
+                        Model: 4c82d848-d023-48da-8a09-a83698178081:Ground
+                        Materials: {}
+        -   Entity:
+                Id: fdadcf09-a84b-4fe2-8e9f-7a55aea52abd
+                Name: HSLogger
+                Components:
+                    e3e2cb5131732a250af41798ef27f6e0: !TransformComponent
+                        Id: a8378446-0a09-4bcd-9ff4-603c66fe9bb4
+                        Position: {X: 0.0, Y: 0.0, Z: 0.0}
+                        Rotation: {X: 0.0, Y: 0.0, Z: 0.0, W: 1.0}
+                        Scale: {X: 1.0, Y: 1.0, Z: 1.0}
+                        Children: {}
+                    d4833d2c16d1f236ada92df9f1d107fc: !Happenstance.SE.Logger.Core.HSLogger,HS_Core
+                        Id: 2811bef3-80ea-489c-8d29-9c4e659ac5b8
+                        DebugMode: true

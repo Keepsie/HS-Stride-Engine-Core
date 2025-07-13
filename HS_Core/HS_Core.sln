@@ -1,0 +1,11 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 16
+VisualStudioVersion = 16.0.0.0
+MinimumVisualStudioVersion = 16.0.0.0
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS_Core.Windows", "HS_Core.Windows\HS_Core.Windows.csproj", "{FA99AF3D-2EF7-4556-BC1E-581A36640BEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HS_Core", "HS_Core\HS_Core.csproj", "{57F7A012-7F16-4F62-9933-36153C0361B9}"
+EndProject
+Global
+EndGlobal
