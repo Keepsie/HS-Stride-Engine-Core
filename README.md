@@ -39,7 +39,7 @@ public class NewPlayerController : HSSyncScript
 }
 
 // They can even communicate normally!
-var enemy = EntityFinder.FindEntityByName("Enemy"); // HS utility
+var enemy = Entity.Scene.FindEntityByName_HS("Enemy"); // HS utility
 var aiScript = enemy.Get<OldEnemyAI>();             // Standard Stride
 ```
 
@@ -69,11 +69,11 @@ public class MyScript : SyncScript
 // After (Happenstance way)  
 public class MyScript : HSSyncScript
 {
-    public override void OnAwake() { /* initialization */ }
-    public override void OnStart() { /* after awake */ }
-    public override void OnUpdate() { /* your update logic */ }
-    public override void OnEnable() { /* when enabled */ }
-    public override void OnDisable() { /* when disabled */ }
+    protected override void OnAwake() { /* initialization */ }
+    protected override void OnStart() { /* after awake */ }
+    protected override void OnUpdate() { /* your update logic */ }
+    protected override void OnEnable() { /* when enabled */ }
+    protected override void OnDisable() { /* when disabled */ }
 }
 ```
 
@@ -84,13 +84,15 @@ Unity-style lifecycle methods that work exactly as expected.
 
 **HSAsyncScript / HSSyncScript / HSStartupScript:**
 ```csharp
-public override void OnAwake()    // Called first, for initialization
-public override void OnStart()    // Called after Awake, for setup  
-public override void OnUpdate()   // Called every frame (SyncScript only)
-public override void OnExecute()  // Called for async operations (AsyncScript only)
-public override void OnEnable()   // Called when entity/component enabled
-public override void OnDisable()  // Called when entity/component disabled  
-public override void OnDestroy()  // Called when entity destroyed
+protected override void OnAwake()    // Called first, for initialization
+protected override void OnStart()    // Called after Awake, for setup  
+protected override void OnUpdate()   // Called every frame (SyncScript only)
+protected override Task OnExecute()  // Called for async operations (AsyncScript only)
+protected override void OnEnable()   // Called when entity/component enabled
+protected override void OnDisable()  // Called when entity/component disabled  
+protected override void OnDestroy()  // Called when entity destroyed
+protected override void OnTriggerEnter(Entity other) // Called when another entity enters trigger
+protected override void OnTriggerExit(Entity other)  // Called when another entity exits trigger
 ```
 
 **StartDisabled Support:**
@@ -102,47 +104,217 @@ public bool StartDisabled { get; set; } // Set in Stride Studio
 - Perfect for objects that should spawn inactive
 - Handles lifecycle correctly when enabled later
 
-### 🔍 HSEntityFinder - Advanced Entity Management
-Powerful utilities for finding entities and components throughout your scene.
+### 🎯 HSOnTriggerComponent - Unity-Style Trigger Events
+Automatic trigger detection system that provides Unity-familiar OnTriggerEnter/OnTriggerExit callbacks for Stride's Bullet physics system.
+
+## ⚠️ **IMPORTANT: Enable CollisionDetection First**
+**You MUST enable `CollisionDetection = true` in the inspector or constructor before the script starts.** This cannot be changed at runtime due to performance optimization.
+
+```csharp
+public class TriggerZone : HSSyncScript
+{
+    public TriggerZone()
+    {
+        // ✅ Enable collision detection at construction
+        CollisionDetection = true;
+    }
+    
+    // OR set CollisionDetection = true in the Stride inspector
+}
+```
+
+## **Automatic Integration:**
+```csharp
+// HSOnTriggerComponent is automatically added to all HS scripts
+// Just override the methods you need:
+public class TriggerZone : HSSyncScript
+{
+    protected override void OnTriggerEnter(Entity other)
+    {
+        Logger.Info($"Entity {other.Name} entered trigger zone");
+        
+        // Check for specific components
+        var player = other.Get<PlayerController>();
+        if (player != null)
+        {
+            OnPlayerEntered(player);
+        }
+    }
+    
+    protected override void OnTriggerExit(Entity other)
+    {
+        Logger.Info($"Entity {other.Name} left trigger zone");
+    }
+}
+```
+
+## **Requirements:**
+- **CollisionDetection = true** in inspector or constructor
+- Entity must have a `PhysicsComponent`
+- Works with Stride's current Bullet physics system
+- Will be updated when Bepu physics becomes stable
+
+## **Performance Design:**
+The system uses an **early return pattern** for optimal performance:
+- Scripts with `CollisionDetection = false` have **zero overhead**
+- Only entities that need triggers consume CPU cycles
+- **Cannot be enabled at runtime** - this is intentional for performance
+
+If you need to enable/disable triggers at runtime, you'll need custom implementation:
+
+## **Features:**
+- **Automatic Cleanup:** Dead entities are properly removed from trigger tracking
+- **Performance Optimized:** Periodic cleanup prevents memory leaks  
+- **Enable/Disable Control:** Use `CollisionDetection` property in inspector
+- **Thread Safe:** Handles async collision detection properly
+- **Zero Overhead:** Scripts without collision detection have no performance cost
+
+## **Common Use Cases:**
+```csharp
+// ✅ Trigger zones (enable CollisionDetection)
+public class CheckpointZone : HSSyncScript { }
+
+// ✅ Pickups (enable CollisionDetection) 
+public class HealthPack : HSSyncScript { }
+
+// ✅ Damage zones (enable CollisionDetection)
+public class LavaZone : HSSyncScript { }
+
+// ✅ Regular scripts (leave CollisionDetection = false)
+public class WeaponController : HSSyncScript { }
+public class AnimationController : HSSyncScript { }
+```
+
+## **Debugging Tips:**
+- Check that `CollisionDetection = true` in inspector
+- Verify entity has `PhysicsComponent`
+- Use Logger to confirm OnTriggerEnter/Exit are being called
+- Remember: Only the **receiving** entity needs collision detection enabled
+
+### 🔍 HSEntity, HSScene, HSTransform - Extension Method APIs
+Unity-style extension methods that make entity management, scene searching, and transform operations intuitive and clean.
+
+**⚠️ Extension Method Naming**
+All extension methods use `_HS` suffix to prevent future conflicts with Stride Engine updates. This ensures the API remains stable even if Stride adds similar methods later.
+
+### 🎯 HSEntity - Entity Hierarchy Management
+Find children, get components, and manage entity relationships with Unity-familiar syntax.
+
+**Find Children:**
+```csharp
+// Find child by name (immediate children only)
+Entity weapon = player.FindChildByName_HS("Weapon");
+
+// Find child by name (recursive through hierarchy)
+Entity scope = player.FindChildByNameRecursive_HS("Scope");
+```
+
+**Component from Children:**
+```csharp
+// Get component from immediate child
+AudioEmitterComponent audio = player.GetComponentFromChild_HS<AudioEmitterComponent>("AudioSource");
+
+// Get component from anywhere in hierarchy
+ModelComponent model = player.GetComponentFromChildRecursive_HS<ModelComponent>("PlayerModel");
+```
+
+**Unity-Style Component Finding:**
+```csharp
+// Get all components of type in immediate children
+List<Light> lights = player.GetComponentsInChildren_HS<Light>();
+
+// Get all components in entire hierarchy (recursive)
+List<Weapon> allWeapons = player.GetComponentsInAllDescendants_HS<Weapon>();
+
+// Find component in parent entities (walking up hierarchy)
+GameManager manager = someEntity.GetComponentInParent_HS<GameManager>();
+```
+
+**UI Element Finding:**
+```csharp
+// Find UI elements in entity's UI hierarchy
+Button startButton = entity.GetUIElement_HS<Button>("StartButton");
+List<Button> allButtons = entity.GetUIElements_HS<Button>();
+```
+
+### 🌍 HSScene - Scene-Wide Searching
+Find entities and components throughout the entire scene with clean extension syntax.
 
 **Find by Name:**
 ```csharp
-// Find any entity by name (recursive through children)
-Entity player = EntityFinder.FindEntityByName("Player");
-
-// Find child by name (immediate children only)
-Entity weapon = EntityFinder.FindChildByName(player, "Weapon");
-
-// Find child by name (recursive through hierarchy)
-Entity scope = EntityFinder.FindChildByNameRecursive(player, "Scope");
+// Find any entity by name (recursive through entire scene)
+Entity player = Entity.Scene.FindEntityByName_HS("Player");
 ```
 
 **Find by Component:**
 ```csharp
 // Find all entities that have a specific component
-List<Entity> cameras = EntityFinder.FindEntitiesWithComponent<CameraComponent>();
+List<Entity> cameras = Entity.Scene.FindEntitiesWithComponent_HS<CameraComponent>();
 
 // Find all components of a specific type in the scene
-List<AudioEmitterComponent> audioSources = EntityFinder.FindAllComponents<AudioEmitterComponent>();
+List<AudioEmitterComponent> audioSources = Entity.Scene.FindAllComponents_HS<AudioEmitterComponent>();
 
 // Find components that implement an interface
-List<IDamageable> damageables = EntityFinder.FindAllComponentsWithInterface<IDamageable>();
+List<IDamageable> damageables = Entity.Scene.FindAllComponentsWithInterface_HS<IDamageable>();
 ```
 
-**Component from Child:**
-```csharp
-// Get component from immediate child
-AudioEmitterComponent audio = EntityFinder.GetComponentFromChild<AudioEmitterComponent>(player, "AudioSource");
+### 🎯 HSTransform - Unity-Style Transform Operations
+Clean, semantic transform operations that make rotation, positioning, and directional calculations simple and intuitive.
 
-// Get component from anywhere in hierarchy
-ModelComponent model = EntityFinder.GetComponentFromChildRecursive<ModelComponent>(player, "PlayerModel");
+**LookAt Operations (Rotation Made Simple):**
+```csharp
+// Instant snap to face target - no complex matrix math needed!
+entity.Transform.LookAt_HS(player.Transform);
+entity.Transform.LookAt_HS(player);                    // Convenience overload
+entity.Transform.LookAt_HS(targetPosition);
+
+// Smooth rotation towards target - perfect for AI
+entity.Transform.SmoothLookAt_HS(player.Transform, rotationSpeed, deltaTime);
+entity.Transform.SmoothLookAt_HS(targetPosition, rotationSpeed, deltaTime);
 ```
 
-**UI Element Finding:**
+**Rotation & Euler Angles (Unity-Style Simplicity):**
 ```csharp
-// Find UI elements in UI pages
-Button startButton = EntityFinder.GetUIElement<Button>(mainMenuPage, "StartButton");
-List<Button> allButtons = EntityFinder.GetUIElements<Button>(mainMenuPage);
+// Get rotation as degrees - no quaternion math!
+Vector3 rotation = entity.Transform.GetEulerAngles_HS();
+
+// Set rotation from degrees - incredibly simple
+entity.Transform.SetEulerAngles_HS(new Vector3(45, 90, 0));
+
+// Convert between quaternion and euler easily
+Vector3 euler = someQuaternion.ToEulerAngles_HS();
+Quaternion quat = HSTransform.FromEulerAngles_HS(new Vector3(pitch, yaw, roll));
+
+// Smooth rotation control
+entity.Transform.SmoothRotateTo_HS(targetRotation, speed, deltaTime);
+```
+
+**Distance Calculations:**
+```csharp
+// Clean distance methods - no manual Vector3.Distance calls
+float distance = entity.Transform.DistanceFrom_HS(target.Transform);
+float distance = entity.Transform.DistanceFrom_HS(target);          // Convenience
+float distance = entity.Transform.DistanceFrom_HS(worldPosition);
+
+// Performance optimized for comparisons
+float distSq = entity.Transform.DistanceSquaredFrom_HS(target.Transform);
+```
+
+**Direction & Positioning:**
+```csharp
+// Clean directional access
+Vector3 forward = entity.Transform.GetForward_HS();
+Vector3 right = entity.Transform.GetRight_HS();
+Vector3 up = entity.Transform.GetUp_HS();
+
+// Position utilities
+Vector3 pos = entity.Transform.GetWorldPosition_HS();      // Force update
+Vector3 pos = entity.Transform.GetWorldPositionFast_HS(); // When matrix is current
+
+// Direction calculations for AI
+float yaw = HSTransform.DirectionToYaw_HS(moveDirection);
+float angle = entity.Transform.AngleTo_HS(target.Transform); // Vision cones
+Quaternion lookRot = HSTransform.LookRotation_HS(direction);
 ```
 
 ### 🎲 HSRandom - Consistent Random Utilities
@@ -196,11 +368,11 @@ float statRoll = HSRandom.BellCurve(1f, 20f, 3); // More likely to roll ~10-11
 SetActive(false); // Disables this HS script entity and all children
 
 // Parent/child management (works on ANY entity, even non-HS entities!)
-SetParent(parentEntity);   // Make this entity a child of parent
-SetChild(anyEntity);       // Make ANY entity a child of this one
-ClearParent();             // Remove from parent (become root)
-ClearChild(specificChild); // Remove specific child
-ClearChildren();           // Remove all children
+Entity.SetParent_HS(parentEntity);   // Make this entity a child of parent
+Entity.SetChild_HS(anyEntity);       // Make ANY entity a child of this one
+Entity.ClearParent_HS();             // Remove from parent (become root)
+Entity.ClearChild_HS(specificChild); // Remove specific child
+Entity.ClearChildren_HS();           // Remove all children
 ```
 
 ### 🗣️ HSLogger - Advanced Logging System
@@ -217,7 +389,7 @@ Controlled logging system with debug mode, file output, and multiple destination
 ```csharp
 public class MyScript : HSSyncScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
         Logger.Debug("Debug info (only shows if DebugMode = true)");
         Logger.Info("Script started successfully");
@@ -264,7 +436,7 @@ HSSystemLanguage currentLang = HSSystemLanguage.English;
 ```csharp
 public class PlayerController : HSSyncScript
 {
-    public override void OnUpdate() 
+    protected override void OnUpdate() 
     { 
         HandleInput();
         UpdateMovement(); 
@@ -276,7 +448,7 @@ public class PlayerController : HSSyncScript
 ```csharp
 public class GameManager : HSAsyncScript
 {
-    public override async Task OnExecute()
+    protected override async Task OnExecute()
     {
         await LoadGameData();
         await InitializeSystems();
@@ -289,7 +461,7 @@ public class GameManager : HSAsyncScript
 ```csharp
 public class GameInitializer : HSStartupScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
         SetupGameSettings();
         InitializeServices();
@@ -305,7 +477,7 @@ public class AudioManager : HSSyncScript
 {
     public static AudioManager Instance { get; private set; }
     
-    public override void OnAwake()
+    protected override void OnAwake()
     {
         Instance = this;
     }
@@ -316,9 +488,9 @@ public class AudioManager : HSSyncScript
 ```csharp
 public class PlayerHealth : HSSyncScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
-        var ui = EntityFinder.FindAllComponents<HealthUI>().FirstOrDefault();
+        var ui = Entity.Scene.FindAllComponents_HS<HealthUI>().FirstOrDefault();
         ui?.UpdateHealthDisplay(currentHealth);
     }
 }
@@ -330,7 +502,7 @@ public class PlayerHealth : HSSyncScript
 ```csharp
 public class SpawnManager : HSSyncScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
         // Spawn enemies and organize them under this manager
         var enemy1 = SpawnEnemy();
@@ -338,9 +510,9 @@ public class SpawnManager : HSSyncScript
         var pickupItem = SpawnPickup();
         
         // Parent ANY entity to this manager (even non-HS entities)
-        SetChild(enemy1);     // Now enemy1 is child of SpawnManager
-        SetChild(enemy2);     // Now enemy2 is child of SpawnManager
-        SetChild(pickupItem); // Even pickup items can be organized
+        Entity.SetChild_HS(enemy1);     // Now enemy1 is child of SpawnManager
+        Entity.SetChild_HS(enemy2);     // Now enemy2 is child of SpawnManager
+        Entity.SetChild_HS(pickupItem); // Even pickup items can be organized
         
         // Much easier than: enemy1.Transform.Parent = Entity.Transform;
         
@@ -350,7 +522,7 @@ public class SpawnManager : HSSyncScript
     public void CleanupAllSpawned()
     {
         // Remove all spawned entities from hierarchy (makes them root entities)
-        ClearChildren();
+        Entity.ClearChildren_HS();
     }
 }
 ```
@@ -359,11 +531,11 @@ public class SpawnManager : HSSyncScript
 ```csharp
 public class GameBootstrap : HSStartupScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
         // Find all managers in the scene
-        var audioManager = EntityFinder.FindAllComponents<AudioManager>().FirstOrDefault();
-        var inputManager = EntityFinder.FindAllComponents<InputManager>().FirstOrDefault();
+        var audioManager = Entity.Scene.FindAllComponents_HS<AudioManager>().FirstOrDefault();
+        var inputManager = Entity.Scene.FindAllComponents_HS<InputManager>().FirstOrDefault();
         
         // Configure them
         audioManager?.Initialize();
@@ -378,7 +550,7 @@ public class GameBootstrap : HSStartupScript
 ```csharp
 public class EnemySpawner : HSAsyncScript
 {
-    public override async Task OnExecute()
+    protected override async Task OnExecute()
     {
         while (IsEnabled)
         {
@@ -387,7 +559,7 @@ public class EnemySpawner : HSAsyncScript
                 var enemy = SpawnEnemy();
                 
                 // Instantly organize under this spawner (works on ANY entity!)
-                SetChild(enemy); // Much easier than enemy.Transform.Parent = Entity.Transform
+                Entity.SetChild_HS(enemy); // Much easier than enemy.Transform.Parent = Entity.Transform
                 
                 Logger.Debug($"Spawned enemy, total children: {Entity.Transform.Children.Count}");
             }
@@ -399,7 +571,107 @@ public class EnemySpawner : HSAsyncScript
     public void DespawnAllEnemies()
     {
         // Easy cleanup - remove all children from hierarchy
-        ClearChildren();
+        Entity.ClearChildren_HS();
+    }
+}
+```
+
+### Unity-Style Trigger Detection
+```csharp
+public class PickupItem : HSSyncScript
+{
+    [DataMember] public float healAmount = 25f;
+    [DataMember] public AudioComponent pickupSound;
+    
+    protected override void OnTriggerEnter(Entity other)
+    {
+        // Check if player entered the pickup area
+        var player = other.Get<PlayerController>();
+        if (player != null)
+        {
+            // Heal the player
+            var health = player.Entity.Get<PlayerHealth>();
+            health?.Heal(healAmount);
+            
+            // Play pickup sound
+            pickupSound?.Play();
+            
+            Logger.Info($"Player picked up health item: +{healAmount} HP");
+            
+            // Remove the pickup item
+            Entity.Scene.Entities.Remove(Entity);
+        }
+    }
+}
+```
+
+```csharp
+public class DamageZone : HSSyncScript
+{
+    [DataMember] public float damagePerSecond = 10f;
+    [DataMember] public string damageType = "Fire";
+    
+    private HashSet<Entity> entitiesInDamageZone = new HashSet<Entity>();
+    
+    protected override void OnTriggerEnter(Entity other)
+    {
+        var damageable = other.Get<IDamageable>();
+        if (damageable != null)
+        {
+            entitiesInDamageZone.Add(other);
+            Logger.Info($"{other.Name} entered {damageType} damage zone");
+        }
+    }
+    
+    protected override void OnTriggerExit(Entity other)
+    {
+        if (entitiesInDamageZone.Contains(other))
+        {
+            entitiesInDamageZone.Remove(other);
+            Logger.Info($"{other.Name} left {damageType} damage zone");
+        }
+    }
+    
+    protected override void OnUpdate()
+    {
+        // Apply damage to all entities in zone
+        foreach (var entity in entitiesInDamageZone)
+        {
+            var damageable = entity.Get<IDamageable>();
+            damageable?.TakeDamage(damagePerSecond * (float)Game.UpdateTime.Elapsed.TotalSeconds);
+        }
+    }
+}
+```
+
+```csharp
+public class TeleportPad : HSSyncScript
+{
+    [DataMember] public Entity destinationPad;
+    [DataMember] public AudioComponent teleportSound;
+    [DataMember] public ParticleSystemComponent teleportEffect;
+    
+    protected override void OnTriggerEnter(Entity other)
+    {
+        // Only teleport entities with a transform and physics
+        if (other.Get<TransformComponent>() != null && other.Get<RigidbodyComponent>() != null)
+        {
+            TeleportEntity(other);
+        }
+    }
+    
+    private void TeleportEntity(Entity entity)
+    {
+        if (destinationPad == null) return;
+        
+        // Play effects
+        teleportSound?.Play();
+        teleportEffect?.Play();
+        
+        // Teleport to destination
+        entity.Transform.Position = destinationPad.Transform.Position;
+        
+        Logger.Info($"Teleported {entity.Name} to {destinationPad.Name}");
     }
 }
 ```
@@ -425,7 +697,7 @@ public override void Start()
 }
 
 // ✅ NEW HS Script  
-public override void OnStart()
+protected override void OnStart()
 {
     // base.OnStart(); // Only if needed, NO base.Start()!
     // your code
@@ -443,10 +715,10 @@ public override void Update() { }    // SEALED - use OnUpdate()
 public override Task Execute() { }   // SEALED - use OnExecute()
 
 // ✅ Use these instead  
-public override void OnAwake() { }
-public override void OnStart() { }
-public override void OnUpdate() { }
-public override async Task OnExecute() { }
+protected override void OnAwake() { }
+protected override void OnStart() { }
+protected override void OnUpdate() { }
+protected override async Task OnExecute() { }
 ```
 
 ### Performance Considerations
@@ -458,13 +730,13 @@ public override async Task OnExecute() { }
 - **Setup Required:** Copy HSLogger prefab into scene OR attach HSLogger component to any entity
 - Scripts will log errors if HSLogger is not found in the scene
 - Logger is automatically discovered and cached by all HS scripts
-- Set `DebugMode = true` on HSLogger for development, `false` for release
+- Set **`DebugMode = true`** on HSLogger for development, `false` for release 
 - Error logs are always saved to file regardless of debug mode
 
 ### Entity Control
 - **SetActive()** only works on entities with HS scripts (enables/disables the entity hierarchy)
 - **Parent/Child management** works on ANY entity in the scene, even non-HS entities
-- **SetChild(anyEntity)** from any HS script can parent ANY entity to it
+- **Entity.SetChild_HS(anyEntity)** from any HS script can parent ANY entity to it
 - **Much easier than Stride's manual Transform.Parent manipulation**
 - **Perfect for dynamic spawning, organization, and hierarchy management**
 
@@ -474,7 +746,7 @@ public override async Task OnExecute() { }
 spawnedEntity.Transform.Parent = managerEntity.Transform;
 
 // You get this (HS way):
-managerScript.SetChild(spawnedEntity);
+managerEntity.SetChild_HS(spawnedEntity);
 ```
 
 ## 🛠️ Extending the System
@@ -485,10 +757,10 @@ public abstract class MyCustomScript : HSSyncScript
 {
     protected MyGameManager GameManager { get; private set; }
     
-    public override void OnAwake()
+    protected override void OnAwake()
     {
         base.OnAwake();
-        GameManager = EntityFinder.FindAllComponents<MyGameManager>().FirstOrDefault();
+        GameManager = Entity.Scene.FindAllComponents_HS<MyGameManager>().FirstOrDefault();
     }
 }
 ```
@@ -502,10 +774,10 @@ public interface IDamageable
 
 public class HealthSystem : HSSyncScript
 {
-    public override void OnStart()
+    protected override void OnStart()
     {
         // Find all damageable objects in scene
-        var damageables = EntityFinder.FindAllComponentsWithInterface<IDamageable>();
+        var damageables = Entity.Scene.FindAllComponentsWithInterface_HS<IDamageable>();
         RegisterDamageables(damageables);
     }
 }

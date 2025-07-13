@@ -14,20 +14,23 @@ namespace Happenstance.SE.Core
         //
         [DataMember]
         public bool StartDisabled { get; set; }
+        
+        [DataMember]
+        public bool CollisionDetection { get; set; } = false;
+        
+        //
         private bool _hasInitialized = false;
 
         //
         protected IHSLogger Logger { get; private set; }
-        protected HSEntityFinder EntityFinder { get; private set; }
         private HSEnableComponent _enableComponent;
+        private HSOnTriggerComponent _triggerComponentHandler;
         private bool _isDestroyed = false;
         public bool IsEnabled { get; private set; }
 
-        public override sealed void Start()
+        public sealed override void Start()
         {
-            EntityFinder = new HSEntityFinder(SceneSystem);
-
-            Logger = EntityFinder.FindAllComponents<HSLogger>().FirstOrDefault();
+            Logger = Entity.Scene.FindAllComponents_HS<HSLogger>().FirstOrDefault();
             if (Logger == null)
             {
                 Log.Warning($"[{GetType().Name}] Could not find HSLogger");
@@ -40,6 +43,7 @@ namespace Happenstance.SE.Core
                 OnStartDisabled();
             }
 
+            //
             _enableComponent = Entity.GetOrCreate<HSEnableComponent>();
             _enableComponent.RegisterCallbacks(
                 () => HandleEnable(),
@@ -48,8 +52,15 @@ namespace Happenstance.SE.Core
             );
 
             IsEnabled = _enableComponent.Enabled;
+            
+            //
+            _triggerComponentHandler = Entity.GetOrCreate<HSOnTriggerComponent>();
+            _triggerComponentHandler.EnableTrigger = CollisionDetection;
+            _triggerComponentHandler.OnTriggerEnter += OnTriggerEnter;
+            _triggerComponentHandler.OnTriggerExit += OnTriggerExit;
 
  
+            //
             if (!StartDisabled)
             {
                 Initialize();
@@ -66,7 +77,7 @@ namespace Happenstance.SE.Core
             }
         }
 
-        public override sealed void Update()
+        public sealed override void Update()
         {
             if (!IsEnabled) return;
             OnUpdate();
@@ -84,8 +95,10 @@ namespace Happenstance.SE.Core
         {
             Entity.EnableAll(active, true);
         }
+        
+        
 
-        public override sealed void Cancel()
+        public sealed override void Cancel()
         {
             if (_isDestroyed) return;
             _isDestroyed = true;
@@ -111,67 +124,14 @@ namespace Happenstance.SE.Core
             IsEnabled = enable;
         }
 
-        /// <summary>
-        /// Makes target Entity a parent of this entity
-        /// </summary>
-        /// <param name="child"></param>
-        public void SetParent(Entity parent)
-        {
-            Entity.Transform.Parent = parent?.Transform;
-        }
-
-        /// <summary>
-        /// Makes target Entity a child of this entity
-        /// </summary>
-        /// <param name="child"></param>
-        public void SetChild(Entity child)
-        {
-            if (child != null)
-            {
-                child.Transform.Parent = Entity.Transform;
-            }
-        }
-
-        /// <summary>
-        /// Removes this entity's parent (makes it a root entity)
-        /// </summary>
-        public void ClearParent()
-        {
-            Entity.Transform.Parent = null;
-        }
-
-        /// <summary>
-        /// Removes a specific child from this entity (makes it a root entity)
-        /// </summary>
-        /// <param name="child">The child entity to remove</param>
-        public void ClearChild(Entity child)
-        {
-            if (child != null && child.Transform.Parent == Entity.Transform)
-            {
-                child.Transform.Parent = null;
-            }
-        }
-
-        /// <summary>
-        /// Removes all children from this entity (makes them root entities)
-        /// Note: This clears ALL children - no selective removal
-        /// </summary>
-        public void ClearChildren()
-        {
-            // Need to iterate through a copy since we're modifying the collection
-            var children = Entity.Transform.Children.ToList();
-
-            foreach (var child in children)
-            {
-                child.Parent = null;
-            }
-        }
-
-        public virtual void OnAwake() { }
-        public virtual void OnStart() { }
-        public virtual void OnUpdate() { }
-        public virtual void OnEnable() { }
-        public virtual void OnDisable() { }
-        public virtual void OnDestroy() { }
+        protected virtual void OnAwake() { }
+        protected virtual void OnStart() { }
+        protected virtual void OnUpdate() { }
+        protected virtual void OnEnable() { }
+        protected virtual void OnDisable() { }
+        protected virtual void OnDestroy() { }
+        protected virtual void OnTriggerEnter(Entity other){}
+        protected virtual void OnTriggerExit(Entity other) { }
+        
     }
 }

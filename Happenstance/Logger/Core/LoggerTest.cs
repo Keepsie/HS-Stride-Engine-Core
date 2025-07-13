@@ -12,13 +12,12 @@ namespace Happenstance.SE.Logger.Core
 {
     public class LoggerTest : HSSyncScript
     {
-
-        public override void OnStart()
+        protected override void OnStart()
         {
             Logger.Info("Logger test component initialized");
         }
 
-        public override void OnUpdate()
+        protected override void OnUpdate()
         {
             var input = Input;
 
