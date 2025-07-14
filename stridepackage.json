@@ -1,7 +1,7 @@
 {
   "name": "HS-Stride-Engine-Core",
   "version": "1.0.0",
-  "description": "A foundational library for Stride Game Engine that makes coding feels like Unity!",
+  "description": "A foundational library for the Stride Game Engine that makes coding feel like Unity!",
   "author": "Happenstance Games",
   "tags": [
     "code-library"
