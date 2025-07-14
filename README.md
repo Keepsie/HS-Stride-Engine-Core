@@ -1,6 +1,6 @@
 # HS Stride Engine Core
 
-A foundational library for Stride Engine that provides Unity-style script lifecycle, improved entity management, and essential utilities for game development.
+A foundational library for Stride Game Engine that makes coding feel like Unity! Get familiar script lifecycle, intuitive entity finding, and essential game development utilities.
 
 ## 🎯 Why This Library Exists
 
@@ -52,8 +52,7 @@ var aiScript = enemy.Get<OldEnemyAI>();             // Standard Stride
 
 ### Alternative: Manual Installation
 - Code is open source - you can still copy files manually if preferred
-- See legacy installation instructions 
-- HS Stride Packer handles all dependencies and setup automatically
+- Drag and drop the .cs files into your project. (Happenstance Folder)
 
 ### Prerequisites
 - Stride Engine 4.2.0.2381 or newer
@@ -108,20 +107,7 @@ public bool StartDisabled { get; set; } // Set in Stride Studio
 Automatic trigger detection system that provides Unity-familiar OnTriggerEnter/OnTriggerExit callbacks for Stride's Bullet physics system.
 
 ## ⚠️ **IMPORTANT: Enable CollisionDetection First**
-**You MUST enable `CollisionDetection = true` in the inspector or constructor before the script starts.** This cannot be changed at runtime due to performance optimization.
-
-```csharp
-public class TriggerZone : HSSyncScript
-{
-    public TriggerZone()
-    {
-        // ✅ Enable collision detection at construction
-        CollisionDetection = true;
-    }
-    
-    // OR set CollisionDetection = true in the Stride inspector
-}
-```
+**You MUST enable `CollisionDetection = true` in the inspector before the script starts.** This cannot be changed at runtime due to performance optimization.
 
 ## **Automatic Integration:**
 ```csharp
@@ -782,13 +768,6 @@ public class HealthSystem : HSSyncScript
     }
 }
 ```
-
-## 🤝 Contributing
-
-This library evolves based on real game development needs. If you encounter patterns that could be simplified or utilities that are missing, contributions are welcome.
-
-
-By submitting a pull request, you agree to license your contribution under the MIT License.
 
 ## 📄 License
 
