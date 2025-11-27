@@ -1,14 +1,14 @@
 {
   "name": "HS-Stride-Engine-Core",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A foundational library for the Stride Game Engine that makes coding feel like Unity!",
   "author": "Happenstance Games",
   "tags": [
     "code-library"
   ],
   "stride_version": "4.2.0+",
-  "created": "2025-06-17T14:48:52Z",
-  "download_url": "https://github.com/Keepsie/HS-Stride-Engine-Core/releases/download/1.0.0/HS-Stride-Engine-Core-1.0.0.stridepackage",
+  "created": "2025-11-27T15:08:19Z",
+  "download_url": "https://github.com/Keepsie/HS-Stride-Engine-Core/releases/download/1.2.0/HS-Stride-Engine-Core-1.2.0.stridepackage",
   "homepage": "https://github.com/Keepsie/HS-Stride-Engine-Core",
   "repository": "https://github.com/Keepsie/HS-Stride-Engine-Core",
   "license": "MIT"
